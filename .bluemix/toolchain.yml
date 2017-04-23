@@ -59,21 +59,21 @@ services:
       parameters:
         label: maven-nexus
         dashboard_url: https://nexus.mybluemix.net/
-        # user_id:
-        # token: 
+        user_id: idsorg
         name: maven-nexus
         type: maven
         release_url: https://nexus.mybluemix.net/repository/maven-releases/
         mirror_url: https://nexus.mybluemix.net/repository/maven-central/
         snapshot_url: https://nexus.mybluemix.net/repository/maven-snapshots/
       service_id: nexus
-    sonarqube:
+    sonar:
       parameters:
         name: SonarQube
-        dashboard_url: 
-        # user_login:
-        # user_password:
-      service_id: sonarqube      
+        dashboard_url: https://idssonarqube.mybluemix.net/
+        user_login: admin
+      service_id: sonarqube
+    messaging:
+      service_id: slack      
 form:
   pipeline:
     parameters:
