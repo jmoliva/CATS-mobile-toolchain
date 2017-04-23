@@ -1,62 +1,209 @@
 ---
 stages:
-- name: BUILD
+- name: Build
   inputs:
-  - type: git
-    branch: master
+    - type: git
+    branch: Dev
     service: ${SAMPLE_REPO}
   triggers:
   - type: commit
   jobs:
   - name: Build
     type: builder
-- name: DEPLOY
+    extension_id: ibm.devops.services.pipeline.gradle.build
+    SERVICE_INSTANCE: (default)
+    SONAR_SERVICE_INSTANCE: (default)
+    BUILD_COMMAND: |-
+      #!/bin/bash
+      # environment variables are available:
+      # MAVEN_NAME: name of the maven service instance
+      # MAVEN_USER_ID: userid for the maven repository
+      # MAVEN_TOKEN: the token or password for the maven repository
+      # MAVEN_SNAPSHOT_URL: the maven snapshot repository
+      # MAVEN_RELEASE_URL: the maven release repository
+      # MAVEN_MIRROR_URL: the maven mirror repository
+      # SONAR_INSTANCE_NAME: the name of the SonarQube instance
+      # SONAR_SERVER_URL: the url of the SonarQube server
+      # SONAR_USER_ID: SonarQube user name
+      # SONAR_USER_TOKEN: SonarQube password or authentication token
+      # $HOME/.gradle/gradle.properties contains all properties for maven repositories and sonarQube server url
+      # mavenCentral is a property for the maven mirror repository
+      # mavenSnapshot is a property for the maven snapshot repository
+      # mavenRelease is a property for the maven release repository
+      # mavenUsername is a property for the maven username
+      # mavenPassword is a property for the maven user's password
+      # Default gradle version: 1.12
+      # To use Gradle 2.9, uncomment the following line:
+      #export PATH="$GRADLE2_HOME/bin:$PATH"
+      #install a newer jvm 1.8
+      export CURRENT_DIR=`pwd`
+
+      sudo add-apt-repository -y ppa:openjdk-r/ppa
+      sudo apt-get -qq update
+      sudo apt-get -qq install -y openjdk-8-jdk
+      export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+      echo `$JAVA_HOME/jre/bin/java -version`
+
+      export ANDROID_SDK=$HOME/.android-sdk
+      # generate the local.properties file for android sdk home
+      mkdir $ANDROID_SDK
+      chmod +x gradlew
+      # copy licenses
+      cp -R licenses $ANDROID_SDK/licenses
+
+      cat > local.properties <<EOF
+      sdk.dir=$ANDROID_SDK
+      EOF
+
+      curl -L https://dl.google.com/android/repository/tools_r25.2.3-linux.zip -o $ANDROID_SDK/tools_r25.2.3-linux.zip
+      cd $ANDROID_SDK
+      unzip -q tools_r25.2.3-linux.zip
+      rm -f tools_r25.2.3-linux.zip
+
+      # generate the key store
+      mkdir -p $HOME/.android
+      cd $HOME/.android
+      keytool -genkey -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android -keyalg RSA -validity 14000 -dname "CN=Olivier Thomann, OU=IBM, O=IBM Cloud, L=Ottawa, ST=ON, C=CA"
+
+      cd $CURRENT_DIR
+      ./gradlew assemble
+    SERVICE_INSTANCE_TYPE: nexus
+- name: Sonar
   inputs:
-  - type: job
-    stage: BUILD
-    job: Build
+    - type: git
+    branch: Dev
+    service: ${SAMPLE_REPO}
   triggers:
   - type: stage
-  properties:
-  - name: CF_APP_NAME
-    value: undefined
-    type: text
-  - name: APP_URL
-    value: undefined
-    type: text
   jobs:
-  - name: Blue-Green Deploy
-    type: deployer
-    target:
-      region_id: ${PROD_REGION_ID}
-      organization: ${PROD_ORG_NAME}
-      space: ${PROD_SPACE_NAME}
-      application: ${CF_APP_NAME}
-    script: |
+  - name: Test
+    type: tester
+    extension_id: ibm.devops.services.pipeline.gradle.test
+    SERVICE_INSTANCE: (default)
+    SONAR_SERVICE_INSTANCE: (default)
+    BUILD_COMMAND: |
       #!/bin/bash
-      # Push app
-      if ! cf app $CF_APP; then  
-        cf push $CF_APP
-      else
-        OLD_CF_APP=${CF_APP}-OLD-$(date +"%s")
-        rollback() {
-          set +e  
-          if cf app $OLD_CF_APP; then
-            cf logs $CF_APP --recent
-            cf delete $CF_APP -f
-            cf rename $OLD_CF_APP $CF_APP
-          fi
-          exit 1
-        }
-        set -e
-        trap rollback ERR
-        cf rename $CF_APP $OLD_CF_APP
-        cf push $CF_APP
-        cf delete $OLD_CF_APP -f
-      fi
-      # Export app name and URL for use in later Pipeline jobs
-      export CF_APP_NAME="$CF_APP"
-      export APP_URL=http://$(cf app $CF_APP_NAME | grep urls: | awk '{print $2}')
-      # View logs
-      #cf logs "${CF_APP}" --recent
-      
+      # environment variables are available:
+      # MAVEN_NAME: name of the maven service instance
+      # MAVEN_USER_ID: userid for the maven repository
+      # MAVEN_TOKEN: the token or password for the maven repository
+      # MAVEN_SNAPSHOT_URL: the maven snapshot repository
+      # MAVEN_RELEASE_URL: the maven release repository
+      # MAVEN_MIRROR_URL: the maven mirror repository
+      # SONAR_INSTANCE_NAME: the name of the SonarQube instance
+      # SONAR_SERVER_URL: the url of the SonarQube server
+      # SONAR_USER_ID: SonarQube user name
+      # SONAR_USER_TOKEN: SonarQube password or authentication token
+      # $HOME/.gradle/gradle.properties contains all properties for maven repositories and sonarQube server url
+      # mavenCentral is a property for the maven mirror repository
+      # mavenSnapshot is a property for the maven snapshot repository
+      # mavenRelease is a property for the maven release repository
+      # mavenUsername is a property for the maven username
+      # mavenPassword is a property for the maven user's password
+      # Default gradle version: 1.12
+      # To use Gradle 2.9, uncomment the following line:
+      #export PATH="$GRADLE2_HOME/bin:$PATH"
+      #install a newer jvm 1.8
+      export CURRENT_DIR=`pwd`
+
+      sudo add-apt-repository -y ppa:openjdk-r/ppa
+      sudo apt-get -qq update
+      sudo apt-get -qq install -y openjdk-8-jdk
+      export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+      echo `$JAVA_HOME/jre/bin/java -version`
+
+      export ANDROID_SDK=$HOME/.android-sdk
+      # generate the local.properties file for android sdk home
+      mkdir $ANDROID_SDK
+      chmod +x gradlew
+      # copy licenses
+      cp -R licenses $ANDROID_SDK/licenses
+
+      cat > local.properties <<EOF
+      sdk.dir=$ANDROID_SDK
+      EOF
+
+      curl -L https://dl.google.com/android/repository/tools_r25.2.3-linux.zip -o $ANDROID_SDK/tools_r25.2.3-linux.zip
+      cd $ANDROID_SDK
+      unzip -q tools_r25.2.3-linux.zip
+      rm -f tools_r25.2.3-linux.zip
+
+      # generate the key store
+      mkdir -p $HOME/.android
+      cd $HOME/.android
+      keytool -genkey -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android -keyalg RSA -validity 14000 -dname "CN=Olivier Thomann, OU=IBM, O=IBM Cloud, L=Ottawa, ST=ON, C=CA"
+
+      cd $CURRENT_DIR
+      ./gradlew sonarqube --stacktrace
+    SERVICE_INSTANCE_TYPE: nexus
+- name: Deploy to Nexus
+  inputs:
+  - type: job
+    stage: Build
+    job: Build
+    dir_name: null
+  triggers:
+  - type: stage
+  jobs:
+  - name: Deploy
+    type: builder
+    extension_id: ibm.devops.services.pipeline.gradle.build
+    SERVICE_INSTANCE: (default)
+    SONAR_SERVICE_INSTANCE: (default)
+    BUILD_COMMAND: |-
+      #!/bin/bash
+      # environment variables are available:
+      # MAVEN_NAME: name of the service instance
+      # MAVEN_USER_ID: userid for the maven repository
+      # MAVEN_TOKEN: the token or password for the maven repository
+      # MAVEN_SNAPSHOT_URL: the maven snapshot repository
+      # MAVEN_RELEASE_URL: the maven release repository
+      # MAVEN_MIRROR_URL: the maven mirror repository
+      # SONAR_INSTANCE_NAME: the name of the sonarqube instance
+      # SONAR_SERVER_URL: the url of the sonarqube server
+      # SONAR_USER_ID: the user's id to connect to the sonarQube server
+      # SONAR_USER_TOKEN: the user's token or password
+      # SONAR_PROJECT_NAME: the sonar project name to use
+      # SONAR_PROJECT_VERSION: the sonar project version
+      # SONAR_PROJECT_KEY: the project key to use for sonar
+      # $HOME/.gradle/gradle.properties contains all properties for maven repositories and sonarQube server url
+      # mavenCentral is a property for the maven mirror repository
+      # mavenSnapshot is a property for the maven snapshot repository
+      # mavenRelease is a property for the maven release repository
+      # mavenUsername is a property for the maven username
+      # mavenPassword is a property for the maven user's password
+      # Default gradle version: 1.12
+      # To use Gradle 2.9, uncomment the following line:
+      #export PATH="$GRADLE2_HOME/bin:$PATH"
+      #install a newer jvm 1.8
+      sudo add-apt-repository -y ppa:openjdk-r/ppa
+      sudo apt-get -qq update
+      sudo apt-get -qq install -y openjdk-8-jdk
+      export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+      echo `$JAVA_HOME/jre/bin/java -version`
+
+      export CURRENT_DIR=`pwd`
+      export ANDROID_SDK=$HOME/.android-sdk
+      # generate the local.properties file for android sdk home
+      mkdir $ANDROID_SDK
+      chmod +x gradlew
+      # copy licenses
+      cp -R licenses $ANDROID_SDK/licenses
+
+      cat > local.properties <<EOF
+      sdk.dir=$ANDROID_SDK
+      EOF
+
+      curl -L https://dl.google.com/android/repository/tools_r25.2.3-linux.zip -o $ANDROID_SDK/tools_r25.2.3-linux.zip
+      cd $ANDROID_SDK
+      unzip -q tools_r25.2.3-linux.zip
+      rm -f tools_r25.2.3-linux.zip
+
+      # generate the key store
+      mkdir -p $HOME/.android
+      cd $HOME/.android
+      keytool -genkey -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android -keyalg RSA -validity 14000 -dname "CN=Olivier Thomann, OU=IBM, O=IBM Cloud, L=Ottawa, ST=ON, C=CA"
+
+      cd $CURRENT_DIR
+      ./gradlew uploadArchives --stacktrace
+    SERVICE_INSTANCE_TYPE: nexus
