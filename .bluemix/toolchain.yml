@@ -13,11 +13,11 @@ template:
     - sample-repo
   info:
     git url: >-
-      [https://github.com/open-toolchain/simple-toolchain.git](https://github.com/open-toolchain/simple-toolchain-hosted)
+      [https://github.com/hmagph/android-mobile-dev-toolchain](https://github.com/hmagph/android-mobile-dev-toolchain)
     git branch: >-
-      [master](https://github.com/open-toolchain/simple-toolchain-hosted/tree/master)
+      [master](https://github.com/hmagph/android-mobile-dev-toolchain/tree/master)
 toolchain:
-  name: 'simple-toolchain-{{timestamp}}'
+  name: 'android-toolchain-{{timestamp}}'
   template:
     getting_started:
       $ref: "#/messages/template.gettingStarted"
@@ -50,6 +50,17 @@ services:
         execute: true
   webide:
     service_id: orion
+  insights:
+    service_id: draservicebroker
+    parameters:
+      criteria:
+        $text: "insights-criteria.json"
+    nexus:
+      parameters:
+        label: gradle-nexus
+        name: gradle-nexus
+        type: gradle
+      service_id: nexus        
 form:
   pipeline:
     parameters:
