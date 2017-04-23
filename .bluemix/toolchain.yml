@@ -57,10 +57,23 @@ services:
         $text: "insights-criteria.json"
     nexus:
       parameters:
-        label: gradle-nexus
-        name: gradle-nexus
-        type: gradle
-      service_id: nexus        
+        label: maven-nexus
+        dashboard_url: https://nexus.mybluemix.net/
+        # user_id:
+        # token: 
+        name: maven-nexus
+        type: maven
+        release_url: https://nexus.mybluemix.net/repository/maven-releases/
+        mirror_url: https://nexus.mybluemix.net/repository/maven-central/
+        snapshot_url: https://nexus.mybluemix.net/repository/maven-snapshots/
+      service_id: nexus
+    sonarqube:
+      parameters:
+        name: SonarQube
+        dashboard_url: 
+        # user_login:
+        # user_password:
+      service_id: sonarqube      
 form:
   pipeline:
     parameters:
