@@ -55,25 +55,25 @@ services:
     parameters:
       criteria:
         $text: "insights-criteria.json"
-    nexus:
-      parameters:
-        label: maven-nexus
-        dashboard_url: https://nexus.mybluemix.net/
-        user_id: idsorg
-        name: maven-nexus
-        type: maven
-        release_url: https://nexus.mybluemix.net/repository/maven-releases/
-        mirror_url: https://nexus.mybluemix.net/repository/maven-central/
-        snapshot_url: https://nexus.mybluemix.net/repository/maven-snapshots/
-      service_id: nexus
-    sonar:
-      parameters:
-        name: SonarQube
-        dashboard_url: https://idssonarqube.mybluemix.net/
-        user_login: admin
-      service_id: sonarqube
-    messaging:
-      service_id: slack      
+  nexus:
+    parameters:
+      label: maven-nexus
+      dashboard_url: https://nexus.mybluemix.net/
+      user_id: idsorg
+      name: maven-nexus
+      type: maven
+      release_url: https://nexus.mybluemix.net/repository/maven-releases/
+      mirror_url: https://nexus.mybluemix.net/repository/maven-central/
+      snapshot_url: https://nexus.mybluemix.net/repository/maven-snapshots/
+    service_id: nexus
+  sonar:
+    parameters:
+      name: SonarQube
+      dashboard_url: https://idssonarqube.mybluemix.net/
+      user_login: admin
+    service_id: sonarqube
+  messaging:
+    service_id: slack      
 form:
   pipeline:
     parameters:
