@@ -4,7 +4,7 @@
 
 This DevOps toolchain is preconfigured for continuous delivery of an Android mobile app.
 
-### To get started, click **Create toolchain**.
+### To get started, click **Create toolchain for CATS**.
 
 [![Deploy To Bluemix](https://console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://console.ng.bluemix.net/devops/setup/deploy/?repository=https%3A//github.com/hmagph/android-mobile-dev-toolchain)
 
