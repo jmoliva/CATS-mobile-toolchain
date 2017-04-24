@@ -3,7 +3,7 @@ stages:
 - name: Build
   inputs:
     - type: git
-    branch: Dev
+    branch: master
     service: ${SAMPLE_REPO}
   triggers:
   - type: commit
@@ -71,7 +71,7 @@ stages:
 - name: Sonar
   inputs:
     - type: git
-    branch: Dev
+    branch: master
     service: ${SAMPLE_REPO}
   triggers:
   - type: stage
