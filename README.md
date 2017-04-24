@@ -1,10 +1,10 @@
-# Android Mobile App Toolchain for CATS
+# Comment instancier une nouvelle ToolChain pour le développement d'application Mobile pour CATS
 
-### Continuously deliver an Android mobile app with Bluemix DevOps
+### Livrer en continue une application mobile avec Bluemix DevOps
 
-This DevOps toolchain is preconfigured for continuous delivery of an Android mobile app.
+Cette toolchain est configurée avec les composants issus du POC CATS Mobile
 
-### To get started, click **Create toolchain for CATS**.
+### Pour commencer, cliquer sur le bouton **Create toolchain**.
 
 [![Deploy To Bluemix](https://console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://dev-console.stage1.ng.bluemix.net/devops/setup/deploy/?repository=https%3A//github.com/jmoliva/CATS-mobile-toolchain)
 
