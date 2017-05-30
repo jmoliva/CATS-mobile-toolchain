@@ -6,7 +6,7 @@ Cette toolchain est configurée avec les composants issus du POC CATS Mobile
 
 ### Pour commencer, cliquer sur le bouton **Create toolchain**.
 
-[![Deploy To Bluemix](https://console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://dev-console.stage1.ng.bluemix.net/devops/setup/deploy/?repository=https%3A//github.com/jmoliva/CATS-mobile-toolchain)
+[![Deploy To Bluemix](https://console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://console.ng.bluemix.net/devops/setup/deploy/?repository=https%3A//github.com/jmoliva/CATS-mobile-toolchain)
 
 ---
 ### Learn more
